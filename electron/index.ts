@@ -11,7 +11,7 @@ import selectFile from "./commands/select-file";
 import getModelsList from "./commands/get-models-list";
 import customModelsSelect from "./commands/custom-models-select";
 import imageUpscayl from "./commands/image-upscayl";
-import { createMainWindow } from "./main-window";
+import { createMainWindow, getMainWindow } from "./main-window";
 import electronIsDev from "electron-is-dev";
 import { execPath, modelsPath } from "./utils/get-resource-paths";
 import batchUpscayl from "./commands/batch-upscayl";
@@ -20,12 +20,18 @@ import autoUpdate from "./commands/auto-update";
 import { FEATURE_FLAGS } from "../common/feature-flags";
 import settings from "electron-settings";
 import pasteImage from "./commands/paste-image";
+import detectGpus from "./commands/detect-gpus";
+import listFolderImages from "./commands/list-folder-images";
 import path from "path";
 
 // INITIALIZATION
 log.initialize({ preload: true });
 
 app.on("ready", async () => {
+  // Friendly name for Windows toast notifications (otherwise they show the raw
+  // AppUserModelID like "org.upscayl.Upscayl").
+  app.setAppUserModelId("OpenScayl");
+
   await prepareNext("./renderer");
 
   app.whenReady().then(() => {
@@ -103,6 +109,22 @@ ipcMain.on(ELECTRON_COMMANDS.FOLDER_UPSCAYL, batchUpscayl);
 ipcMain.on(ELECTRON_COMMANDS.DOUBLE_UPSCAYL, doubleUpscayl);
 
 ipcMain.on(ELECTRON_COMMANDS.PASTE_IMAGE, pasteImage);
+
+ipcMain.handle(ELECTRON_COMMANDS.DETECT_GPUS, detectGpus);
+
+ipcMain.handle(ELECTRON_COMMANDS.LIST_FOLDER_IMAGES, listFolderImages);
+
+// Custom (frameless) window controls for the Studio title bar.
+ipcMain.on(ELECTRON_COMMANDS.WINDOW_MINIMIZE, () =>
+  getMainWindow()?.minimize(),
+);
+ipcMain.on(ELECTRON_COMMANDS.WINDOW_MAXIMIZE, () => {
+  const win = getMainWindow();
+  if (!win) return;
+  if (win.isMaximized()) win.unmaximize();
+  else win.maximize();
+});
+ipcMain.on(ELECTRON_COMMANDS.WINDOW_CLOSE, () => getMainWindow()?.close());
 
 ipcMain.handle("get-gpu-info", async () => {
   try {

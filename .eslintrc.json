@@ -1,0 +1,15 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    "export/**",
+    "renderer/out/**",
+    "renderer/.next/**",
+    "node_modules/**",
+    "**/*.js"
+  ],
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-img-element": "off"
+  }
+}

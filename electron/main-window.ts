@@ -14,11 +14,11 @@ const createMainWindow = () => {
   console.log("🚃 App Path: ", app.getAppPath());
 
   mainWindow = new BrowserWindow({
-    icon: join(__dirname, "build", "icon.png"),
-    width: 1300,
+    icon: join(app.getAppPath(), "build", "icon.png"),
+    width: 1440,
     height: 940,
-    minHeight: 500,
-    minWidth: 600,
+    minHeight: 560,
+    minWidth: 960,
     show: false,
     backgroundColor: "#171717",
     webPreferences: {
@@ -27,6 +27,9 @@ const createMainWindow = () => {
       webSecurity: false,
       preload: join(__dirname, "preload.js"),
     },
+    // Frameless on Windows/Linux so the Studio renders its own title bar with
+    // custom window controls; mac keeps the inset traffic lights.
+    frame: getPlatform() === "mac",
     titleBarStyle: getPlatform() === "mac" ? "hiddenInset" : "default",
   });
 
@@ -49,6 +52,20 @@ const createMainWindow = () => {
     if (!mainWindow) return;
     mainWindow.show();
   });
+
+  // Surface renderer console warnings/errors in the dev terminal for debugging.
+  if (electronIsDev) {
+    mainWindow.webContents.on(
+      "console-message",
+      (_event, level, message, line, sourceId) => {
+        if (level >= 2) {
+          console.log(
+            `🖥️ RENDERER[${level === 3 ? "error" : "warn"}]: ${message} (${sourceId}:${line})`,
+          );
+        }
+      },
+    );
+  }
 
   fetchLocalStorage();
 

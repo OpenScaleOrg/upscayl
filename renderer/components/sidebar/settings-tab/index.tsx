@@ -103,10 +103,6 @@ function SettingsTab({
     }
   };
 
-  const upscaylVersion = navigator?.userAgent?.match(
-    /Upscayl\/([\d\.]+\d+)/,
-  )[1];
-
   function disableScrolling() {
     if (timeoutId !== null) {
       clearTimeout(timeoutId);
@@ -182,9 +178,12 @@ function SettingsTab({
         saveImageAs={saveImageAs}
         setExportType={setExportType}
       />
-      
+
       {/* COPY METADATA TOGGLE */}
-      <CopyMetadataToggle saveImageAs={saveImageAs} setExportType={setExportType} />
+      <CopyMetadataToggle
+        saveImageAs={saveImageAs}
+        setExportType={setExportType}
+      />
 
       {/* IMAGE SCALE */}
       <SelectImageScale scale={scale} setScale={setScale} />

@@ -2,7 +2,7 @@ import { ELECTRON_COMMANDS } from "@common/electron-commands";
 import { useEffect } from "react";
 import useLogger from "./use-logger";
 
-export const initCustomModels = () => {
+export const useInitCustomModels = () => {
   const logit = useLogger();
 
   useEffect(() => {

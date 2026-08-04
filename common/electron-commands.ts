@@ -30,6 +30,11 @@ const ELECTRON_COMMANDS = {
   PASTE_IMAGE: "Paste Image from clipboard",
   PASTE_IMAGE_SAVE_SUCCESS: "Clipboard Image saved successfully",
   PASTE_IMAGE_SAVE_ERROR: "Clipboard Image save failed",
+  WINDOW_MINIMIZE: "Minimize the window",
+  WINDOW_MAXIMIZE: "Toggle maximize the window",
+  WINDOW_CLOSE: "Close the window",
+  DETECT_GPUS: "Detect available GPUs",
+  LIST_FOLDER_IMAGES: "List images in a folder",
 } as const;
 
 export { ELECTRON_COMMANDS };

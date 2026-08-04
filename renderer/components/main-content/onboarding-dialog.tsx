@@ -81,19 +81,6 @@ export function OnboardingDialog() {
         ],
       },
       {
-        type: "info",
-        title: t("ONBOARDING_DIALOG.STEP_3.TITLE"),
-        description: t("ONBOARDING_DIALOG.STEP_3.DESCRIPTION"),
-        configurationOptions: [
-          {
-            key: "video",
-            type: "video",
-            videoSrc:
-              "https://www.youtube-nocookie.com/embed/3M77flVZlVY?autoplay=1",
-          },
-        ],
-      },
-      {
         title: t("ONBOARDING_DIALOG.STEP_4.TITLE"),
         description: t("ONBOARDING_DIALOG.STEP_4.DESCRIPTION"),
         type: "info",
