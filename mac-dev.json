@@ -1,6 +1,6 @@
 {
-  "productName": "Upscayl",
-  "appId": "org.upscayl.Upscayl",
+  "productName": "OpenScayl",
+  "appId": "org.openscale.OpenScayl",
   "buildVersion": "25.06.01",
   "asar": true,
   "asarUnpack": ["**/node_modules/sharp/**/*", "**/node_modules/@img/**/*"],

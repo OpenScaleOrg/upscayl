@@ -152,8 +152,23 @@ const imageUpscayl = async (event, payload: ImageUpscaylPayload) => {
       upscayl.kill();
       return;
     };
-    const onClose = async () => {
-      if (!failed && !stopped) {
+    const onClose = async (code: number | null) => {
+      if (failed || stopped) return;
+      mainWindow.setProgressBar(-1);
+      // A non-zero exit (not a user stop) means the binary crashed — most often
+      // a GPU/Vulkan init failure — without printing "Error". Surface it instead
+      // of reporting a phantom success with a missing output file.
+      if ((code !== 0 && code !== null) || !fs.existsSync(outFile)) {
+        logit(
+          `❌ Upscayl exited with code ${code}, output exists: ${fs.existsSync(outFile)}`,
+        );
+        mainWindow.webContents.send(
+          ELECTRON_COMMANDS.UPSCAYL_ERROR,
+          `Upscayl couldn't produce an image (exit code ${code}). On a multi-GPU system this is usually the wrong GPU — set a different "GPU ID" in Preferences (e.g. your dedicated GPU) and try again.`,
+        );
+        return;
+      }
+      {
         logit("💯 Done upscaling");
         // Free up memory
         upscayl.kill();
@@ -172,7 +187,7 @@ const imageUpscayl = async (event, payload: ImageUpscaylPayload) => {
           }
         }
         mainWindow.webContents.send(ELECTRON_COMMANDS.UPSCAYL_DONE, outFile);
-        showNotification("Upscayl", "Image upscayled successfully!");
+        showNotification("OpenScayl", "Image upscayled successfully!");
       }
     };
 

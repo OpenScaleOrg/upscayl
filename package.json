@@ -1,14 +1,14 @@
 {
-  "name": "upscayl",
+  "name": "openscayl",
   "private": true,
   "version": "2.15.0",
-  "productName": "Upscayl",
+  "productName": "OpenScayl",
   "author": {
     "name": "Nayam Amarshe",
     "email": "nayam.emikx@aleeas.com",
     "url": "https://github.com/NayamAmarshe"
   },
-  "homepage": "https://github.com/TGS963/upscayl",
+  "homepage": "https://github.com/openscale/openscayl",
   "contributors": [
     {
       "name": "Nayam Amarshe",
@@ -68,11 +68,21 @@
     "dist:appstore": "CSC_KEY_PASSWORD=$PASSWORD CSC_LINK=$(openssl base64 -in $CERTIFICATE_PATH) npm run dist:mac-mas",
     "enable-store": "sed -i '' -e 's/APP_STORE_BUILD: false,/APP_STORE_BUILD: true,/' common/feature-flags.ts",
     "disable-store": "sed -i '' -e 's/APP_STORE_BUILD: true,/APP_STORE_BUILD: false,/' common/feature-flags.ts",
-    "validate-schema": "node scripts/validate-schema.js"
+    "validate-schema": "node scripts/validate-schema.js",
+    "lint": "next lint renderer",
+    "lint:fix": "next lint renderer --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit && tsc -p renderer/tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "pretest:e2e": "npm run build",
+    "test:e2e": "playwright test",
+    "prepare": "husky"
   },
   "build": {
-    "productName": "Upscayl",
-    "appId": "org.upscayl.Upscayl",
+    "productName": "OpenScayl",
+    "appId": "org.openscale.OpenScayl",
     "artifactName": "${name}-${version}-${os}.${ext}",
     "afterSign": "./notarize.js",
     "asar": true,
@@ -199,13 +209,20 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "upscayl",
-      "repo": "upscayl"
+      "owner": "openscale",
+      "repo": "openscayl"
     }
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
     "@electron/notarize": "^2.5.0",
+    "@playwright/test": "^1.49.1",
     "@tailwindcss/typography": "^0.5.15",
+    "eslint": "^8.57.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "vitest": "^2.1.8",
     "@types/node": "^18.15.12",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",

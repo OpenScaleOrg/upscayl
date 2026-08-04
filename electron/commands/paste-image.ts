@@ -25,7 +25,7 @@ const createTempFileFromClipboard = async (
   const tempFilePath = path.join(inputFileParams.path, inputFileParams.name);
   const buffer = Buffer.from(inputFileParams.encodedBuffer, "base64");
 
-  await fs.promises.writeFile(tempFilePath, buffer);
+  await fs.promises.writeFile(tempFilePath, new Uint8Array(buffer));
   return tempFilePath;
 };
 

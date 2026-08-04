@@ -8,13 +8,13 @@ function Spinner() {
       xmlns="http://www.w3.org/2000/svg"
       className="h-16 w-16 rounded-full bg-base-300 p-2 text-base-content"
     >
-      <g fill="none" fill-rule="evenodd">
-        <g transform="translate(2 1)" stroke="currentColor" stroke-width="1.5">
+      <g fill="none" fillRule="evenodd">
+        <g transform="translate(2 1)" stroke="currentColor" strokeWidth="1.5">
           <circle
             cx="42.601"
             cy="11.462"
             r="5"
-            fill-opacity="1"
+            fillOpacity="1"
             fill="currentColor"
           >
             <animate
@@ -30,7 +30,7 @@ function Spinner() {
             cx="49.063"
             cy="27.063"
             r="5"
-            fill-opacity="0"
+            fillOpacity="0"
             fill="currentColor"
           >
             <animate
@@ -46,7 +46,7 @@ function Spinner() {
             cx="42.601"
             cy="42.663"
             r="5"
-            fill-opacity="0"
+            fillOpacity="0"
             fill="currentColor"
           >
             <animate
@@ -58,13 +58,7 @@ function Spinner() {
               repeatCount="indefinite"
             />
           </circle>
-          <circle
-            cx="27"
-            cy="49.125"
-            r="5"
-            fill-opacity="0"
-            fill="currentColor"
-          >
+          <circle cx="27" cy="49.125" r="5" fillOpacity="0" fill="currentColor">
             <animate
               attributeName="fill-opacity"
               begin="0s"
@@ -78,7 +72,7 @@ function Spinner() {
             cx="11.399"
             cy="42.663"
             r="5"
-            fill-opacity="0"
+            fillOpacity="0"
             fill="currentColor"
           >
             <animate
@@ -94,7 +88,7 @@ function Spinner() {
             cx="4.938"
             cy="27.063"
             r="5"
-            fill-opacity="0"
+            fillOpacity="0"
             fill="currentColor"
           >
             <animate
@@ -110,7 +104,7 @@ function Spinner() {
             cx="11.399"
             cy="11.462"
             r="5"
-            fill-opacity="0"
+            fillOpacity="0"
             fill="currentColor"
           >
             <animate
@@ -122,7 +116,7 @@ function Spinner() {
               repeatCount="indefinite"
             />
           </circle>
-          <circle cx="27" cy="5" r="5" fill-opacity="0" fill="currentColor">
+          <circle cx="27" cy="5" r="5" fillOpacity="0" fill="currentColor">
             <animate
               attributeName="fill-opacity"
               begin="0s"

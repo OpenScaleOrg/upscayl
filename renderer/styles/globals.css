@@ -304,3 +304,126 @@
     -webkit-transform: perspective(120px) rotateX(-360deg) rotateY(-359.9deg);
   }
 }
+
+/* ---- Upscayl Studio chrome hover states (inline-styled components) ---- */
+.dc-menu-item:hover {
+  background: #2c313a;
+}
+.dc-wc:hover {
+  background: #20242b;
+}
+.dc-wc-close:hover {
+  background: #c0392b;
+  color: #fff;
+}
+.dc-tile:hover {
+  background: #242931 !important;
+  border-color: #333842 !important;
+}
+.dc-mini:hover {
+  background: #242931 !important;
+}
+.dc-run:hover {
+  background: #3a7cf3 !important;
+}
+.dc-select:hover {
+  border-color: #4a515d !important;
+}
+.dc-opt:hover {
+  background: #2c313a !important;
+}
+.dc-seg:hover {
+  background: #242931;
+}
+.dc-tool:hover {
+  background: #252a32 !important;
+  color: #fff !important;
+}
+.dc-zoom:hover {
+  background: #2a2f38 !important;
+}
+.dc-tabadd:hover {
+  background: #20242b !important;
+  color: #fff !important;
+}
+.dc-itab:hover {
+  color: #fff !important;
+}
+.dc-mrow:hover {
+  border-color: #4a515d !important;
+}
+.dc-qcard:hover {
+  border-color: #4a515d !important;
+}
+.dc-x:hover {
+  color: #fff !important;
+}
+/* the studio owns the whole viewport; kill default select styling of range inputs */
+.dc-cmp [data-rcs="handle-container"] {
+  z-index: 5;
+}
+
+/* ---- Upscayl Studio: slim dark scrollbars (match design) ----
+   Style the ::-webkit-scrollbar pseudo so Chromium uses a fixed-width CLASSIC
+   scrollbar instead of the OS overlay bar (which is thin but grows on hover). */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333842;
+  border-radius: 5px;
+  border: 2px solid #15181d;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333842;
+}
+/* Studio scroll panels (Inspector, Preferences): reserve gutter and force a
+   fixed classic scrollbar so it never thickens on hover. Scoped + !important so
+   it wins over any global scrollbar-width that would trigger overlay mode. */
+.dc-scroll-stable {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #333842 transparent;
+}
+.dc-scroll-stable::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+}
+.dc-scroll-stable::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.dc-scroll-stable::-webkit-scrollbar-thumb,
+.dc-scroll-stable::-webkit-scrollbar-thumb:hover {
+  background: #333842 !important;
+  border-radius: 5px !important;
+  border: 2px solid #15181d !important;
+}
+/* the ribbon scrolls horizontally only when the window is narrow — hide its bar */
+.dc-ribbon {
+  scrollbar-width: none;
+}
+.dc-ribbon::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+  display: none;
+}
+
+/* ---- Upscayl Studio: interactive elements use a pointer cursor ---- */
+button:not(:disabled),
+label[class*="cursor-pointer"],
+a,
+[role="button"],
+.dc-menu-item,
+.dc-opt,
+.dc-qcard,
+.dc-mrow,
+.dc-x {
+  cursor: pointer !important;
+}
+button:disabled {
+  cursor: not-allowed !important;
+}

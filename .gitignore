@@ -14,11 +14,17 @@ out/
 # next.js
 /renderer/.next/
 /renderer/out/
+*.tsbuildinfo
 
 # production
 /dist/
 /export/electron
 /export/common
+
+# test artifacts
+/test-results/
+/playwright-report/
+*.stackdump
 
 # misc
 .DS_Store

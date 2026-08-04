@@ -1,3 +1,4 @@
+import fs from "fs";
 import { parse } from "path";
 import { getMainWindow } from "../main-window";
 import {
@@ -100,7 +101,7 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
         ELECTRON_COMMANDS.UPSCAYL_ERROR,
         "Error upscaling image. Error: " + data,
       );
-    showNotification("Upscayl Failure", "Failed to upscale image!");
+    showNotification("OpenScayl Failure", "Failed to upscale image!");
     upscayl2.kill();
     return;
   };
@@ -127,6 +128,14 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
   const onClose2 = async (code) => {
     if (!mainWindow) return;
     if (!failed2 && !stopped) {
+      if ((code !== 0 && code !== null) || !fs.existsSync(outFile)) {
+        mainWindow.setProgressBar(-1);
+        mainWindow.webContents.send(
+          ELECTRON_COMMANDS.UPSCAYL_ERROR,
+          `Upscayl couldn't produce an image (exit code ${code}). On a multi-GPU system, set a different "GPU ID" in Preferences (e.g. your dedicated GPU) and try again.`,
+        );
+        return;
+      }
       logit("💯 Done upscaling");
 
       mainWindow.setProgressBar(-1);
@@ -137,10 +146,7 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
           logit("✅ Metadata copied to: ", outFile);
         } catch (error) {
           logit("❌ Error copying metadata: ", error);
-          mainWindow.webContents.send(
-            ELECTRON_COMMANDS.METADATA_ERROR,
-            error,
-          );
+          mainWindow.webContents.send(ELECTRON_COMMANDS.METADATA_ERROR, error);
         }
       }
       mainWindow.webContents.send(
@@ -168,7 +174,7 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
         ELECTRON_COMMANDS.UPSCAYL_ERROR,
         "Error upscaling image. Error: " + data,
       );
-    showNotification("Upscayl Failure", "Failed to upscale image!");
+    showNotification("OpenScayl Failure", "Failed to upscale image!");
     upscayl.kill();
     return;
   };
