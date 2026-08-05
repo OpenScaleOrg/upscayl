@@ -101,7 +101,7 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
         ELECTRON_COMMANDS.UPSCAYL_ERROR,
         "Error upscaling image. Error: " + data,
       );
-    showNotification("OpenScayl Failure", "Failed to upscale image!");
+    showNotification("Upscayl Studio Failure", "Failed to upscale image!");
     upscayl2.kill();
     return;
   };
@@ -174,7 +174,7 @@ const doubleUpscayl = async (event, payload: DoubleUpscaylPayload) => {
         ELECTRON_COMMANDS.UPSCAYL_ERROR,
         "Error upscaling image. Error: " + data,
       );
-    showNotification("OpenScayl Failure", "Failed to upscale image!");
+    showNotification("Upscayl Studio Failure", "Failed to upscale image!");
     upscayl.kill();
     return;
   };

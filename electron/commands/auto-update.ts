@@ -7,7 +7,7 @@ const autoUpdate = (event: UpdateDownloadedEvent) => {
   const dialogOpts: MessageBoxOptions = {
     type: "info",
     buttons: ["Install update", "No Thanks", "Check Release Notes"],
-    title: "New OpenScayl Update",
+    title: "New Upscayl Studio Update",
     message: event.releaseName as string,
     detail:
       "A new version has been downloaded. Restart the application to apply the updates.",
@@ -20,7 +20,7 @@ const autoUpdate = (event: UpdateDownloadedEvent) => {
     autoUpdater.quitAndInstall();
   } else if (dialogResponse === 2) {
     shell.openExternal(
-      "https://github.com/openscale/openscayl/releases/tag/v" + event.version,
+      "https://github.com/OpenScaleOrg/upscayl/releases/tag/v" + event.version,
     );
     dialog.showMessageBoxSync(dialogOpts);
   } else {

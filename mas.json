@@ -1,6 +1,6 @@
 {
-  "productName": "OpenScayl",
-  "appId": "org.openscale.OpenScayl",
+  "productName": "Upscayl Studio",
+  "appId": "org.openscale.UpscaylStudio",
   "afterSign": "./notarize.js",
   "buildVersion": "25.12.26",
   "asar": true,

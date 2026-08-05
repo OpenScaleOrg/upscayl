@@ -1,5 +1,5 @@
 {
-  "appId": "org.openscale.OpenScayl",
+  "appId": "org.openscale.UpscaylStudio",
   "afterSign": "./notarize.js",
   "asar": true,
   "artifactName": "${name}-${version}-${os}.${ext}",

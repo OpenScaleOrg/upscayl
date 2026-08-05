@@ -23,7 +23,7 @@ test.beforeAll(async () => {
   page = await app.firstWindow();
   await page.waitForLoadState("domcontentloaded");
   // wait past the mount gate until the Studio chrome is rendered
-  await page.waitForSelector("text=OpenScayl", { timeout: 45_000 });
+  await page.waitForSelector("text=Upscayl Studio", { timeout: 45_000 });
 });
 
 test.afterAll(async () => {
@@ -31,7 +31,7 @@ test.afterAll(async () => {
 });
 
 test("title bar shows the brand and menu bar", async () => {
-  await expect(page.getByText("OpenScayl")).toBeVisible();
+  await expect(page.getByText("Upscayl Studio")).toBeVisible();
   // Menu labels unique to the title bar (the responsive ribbon may render its
   // own "View"/"Source" collapse buttons, so those are excluded here).
   for (const label of ["File", "Edit", "Image", "Enhance", "Batch"]) {

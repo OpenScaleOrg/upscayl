@@ -1,4 +1,4 @@
-# OpenScayl — thin wrapper over the npm scripts in package.json.
+# Upscayl Studio — thin wrapper over the npm scripts in package.json.
 # ponytail: no per-platform dist targets; use `npm run dist:<target>` directly.
 
 # On Windows, make's shell mis-runs the extensionless `npm` script shipped by the

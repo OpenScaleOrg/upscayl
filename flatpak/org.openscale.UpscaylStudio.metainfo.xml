@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.openscale.OpenScayl</id>
+  <id>org.openscale.UpscaylStudio</id>
   <name>Upscayl</name>
   <summary>Free and Open Source AI Image Upscaler</summary>
 
   <url type="homepage">https://upscayl.org</url>
-  <url type="bugtracker">https://github.com/openscale/openscayl/issues</url>
+  <url type="bugtracker">https://github.com/OpenScaleOrg/upscayl/issues</url>
   <url type="donation">https://buymeacoffee.com/fossisthefuture</url>
 
   <metadata_license>FSFAP</metadata_license>
@@ -19,7 +19,7 @@
 
   <content_rating type="oars-1.1" />
 
-  <launchable type="desktop-id">org.openscale.OpenScayl.desktop</launchable>
+  <launchable type="desktop-id">org.openscale.UpscaylStudio.desktop</launchable>
 
   <screenshots>
     <screenshot>

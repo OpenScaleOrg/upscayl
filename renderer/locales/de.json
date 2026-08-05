@@ -1,5 +1,5 @@
 {
-  "TITLE": "Upscayl",
+  "TITLE": "Upscayl Studio",
   "INTRO": "Lass mich dir Upscayl Cloud vorstellen!",
   "HEADER": {
     "GITHUB_BUTTON_TITLE": "Gib uns einen Stern auf GitHub 😁",
@@ -277,7 +277,7 @@
       "TITLE": "Metadaten-Warnung",
       "DESCRIPTION": "Auf einigen Systemen sind die Metadaten in anderen Formaten als JPG möglicherweise nicht sichtbar. Verwende gegebenenfalls spezielle Tools zum Anzeigen der Metadaten."
     }
-  },  
+  },
   "UPSCAYL_CLOUD": {
     "COMING_SOON": "Kommt bald!",
     "CATCHY_PHRASE_1": "Keine Fehler mehr, Hardwareprobleme, Qualitätseinbußen oder lange Ladezeiten!",

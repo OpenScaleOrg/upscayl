@@ -1,14 +1,14 @@
 {
-  "name": "openscayl",
+  "name": "upscayl-studio",
   "private": true,
   "version": "2.15.0",
-  "productName": "OpenScayl",
+  "productName": "Upscayl Studio",
   "author": {
     "name": "Nayam Amarshe",
     "email": "nayam.emikx@aleeas.com",
     "url": "https://github.com/NayamAmarshe"
   },
-  "homepage": "https://github.com/openscale/openscayl",
+  "homepage": "https://github.com/OpenScaleOrg/upscayl",
   "contributors": [
     {
       "name": "Nayam Amarshe",
@@ -81,8 +81,8 @@
     "prepare": "husky"
   },
   "build": {
-    "productName": "OpenScayl",
-    "appId": "org.openscale.OpenScayl",
+    "productName": "Upscayl Studio",
+    "appId": "org.openscale.UpscaylStudio",
     "artifactName": "${name}-${version}-${os}.${ext}",
     "afterSign": "./notarize.js",
     "asar": true,
@@ -190,7 +190,7 @@
       "icon": "resources/icons/"
     },
     "win": {
-      "publisherName": "Upscayl Team",
+      "publisherName": "OpenScale",
       "target": [
         "nsis",
         "zip"
@@ -203,14 +203,25 @@
       "allowElevation": true,
       "perMachine": true
     },
+    "appx": {
+      "identityName": "OpenScale.UpscaylStudio",
+      "publisher": "CN=OpenScale",
+      "publisherDisplayName": "OpenScale",
+      "applicationId": "UpscaylStudio",
+      "displayName": "Upscayl Studio",
+      "backgroundColor": "#1e1e2e",
+      "languages": [
+        "en-US"
+      ]
+    },
     "files": [
       "export",
       "renderer/out"
     ],
     "publish": {
       "provider": "github",
-      "owner": "openscale",
-      "repo": "openscayl"
+      "owner": "OpenScaleOrg",
+      "repo": "upscayl"
     }
   },
   "devDependencies": {

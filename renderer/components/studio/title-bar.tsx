@@ -203,7 +203,7 @@ const TitleBar = ({
             window.open("https://github.com/upscayl/upscayl", "_blank"),
         },
         {
-          label: "About OpenScayl",
+          label: "About Upscayl Studio",
           onClick: () => window.open("https://upscayl.org/", "_blank"),
         },
       ],
@@ -246,7 +246,7 @@ const TitleBar = ({
           style={{ borderRadius: 5, display: "block" }}
         />
         <span style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: 0.2 }}>
-          OpenScayl
+          Upscayl Studio
         </span>
       </div>
 

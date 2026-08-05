@@ -30,7 +30,7 @@ log.initialize({ preload: true });
 app.on("ready", async () => {
   // Friendly name for Windows toast notifications (otherwise they show the raw
   // AppUserModelID like "org.upscayl.Upscayl").
-  app.setAppUserModelId("OpenScayl");
+  app.setAppUserModelId("Upscayl Studio");
 
   await prepareNext("./renderer");
 

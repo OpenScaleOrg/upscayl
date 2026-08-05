@@ -187,7 +187,7 @@ const imageUpscayl = async (event, payload: ImageUpscaylPayload) => {
           }
         }
         mainWindow.webContents.send(ELECTRON_COMMANDS.UPSCAYL_DONE, outFile);
-        showNotification("OpenScayl", "Image upscayled successfully!");
+        showNotification("Upscayl Studio", "Image upscayled successfully!");
       }
     };
 

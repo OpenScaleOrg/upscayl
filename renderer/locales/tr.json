@@ -1,5 +1,5 @@
 {
-  "TITLE": "Upscayl",
+  "TITLE": "Upscayl Studio",
   "INTRO": "Upscayl Cloud ile tanışın!",
   "HEADER": {
     "GITHUB_BUTTON_TITLE": "Bize GitHub'da yıldız verin! 🌟",
@@ -277,7 +277,7 @@
       "TITLE": "Meta Veri Uyarısı",
       "DESCRIPTION": "Bazı sistemlerde, JPG dışındaki formatlarda meta veriler görüntülenemeyebilir. Gerekirse meta verileri görüntülemek için özel araçlar kullanın."
     }
-  },    
+  },
   "UPSCAYL_CLOUD": {
     "COMING_SOON": "Yakında sizlerle!",
     "CATCHY_PHRASE_1": "Artık hatalar, donanım uyuşmazlıkları, kalite tavizleri ya da uzun yükleme süreleri yok!",

@@ -150,7 +150,9 @@ const PreferencesDialog = () => {
 
   const resetAll = () => {
     if (
-      confirm("Reset all OpenScayl settings to defaults? The app will reload.")
+      confirm(
+        "Reset all Upscayl Studio settings to defaults? The app will reload.",
+      )
     ) {
       localStorage.clear();
       location.reload();
@@ -394,7 +396,10 @@ const PreferencesDialog = () => {
                 onClick={() => setNoNotifications((v) => !v)}
               />
             </Row>
-            <Row label="Share anonymous usage" hint="Helps improve OpenScayl">
+            <Row
+              label="Share anonymous usage"
+              hint="Helps improve Upscayl Studio"
+            >
               <Toggle
                 on={contribute}
                 onClick={() => setContribute((v) => !v)}

@@ -1,5 +1,5 @@
 {
-  "TITLE": "Upscayl",
+  "TITLE": "Upscayl Studio",
   "INTRO": "Introducing Upscayl Cloud!",
   "HEADER": {
     "GITHUB_BUTTON_TITLE": "Star us on GitHub 😁",
@@ -296,7 +296,7 @@
     "GET_STARTED_BUTTON_TITLE": "Get Started",
     "SETTINGS_NOTE": "You can always change these settings later.",
     "STEP_1": {
-      "TITLE": "Welcome to OpenScayl 🎉",
+      "TITLE": "Welcome to Upscayl Studio 🎉",
       "DESCRIPTION": "Let's get you started with a few quick steps."
     },
     "STEP_2": {
@@ -304,12 +304,12 @@
       "DESCRIPTION": "Configure your initial settings."
     },
     "STEP_3": {
-      "TITLE": "How do I use OpenScayl? 🚀",
+      "TITLE": "How do I use Upscayl Studio? 🚀",
       "DESCRIPTION": "Watch this short video to learn about the new features."
     },
     "STEP_4": {
       "TITLE": "You're All Set! 🎉",
-      "DESCRIPTION": "You're ready to start upscaling images with OpenScayl!"
+      "DESCRIPTION": "You're ready to start upscaling images with Upscayl Studio!"
     }
   }
 }

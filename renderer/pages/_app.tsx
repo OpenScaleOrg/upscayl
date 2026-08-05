@@ -21,7 +21,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
     <>
       <Head>
-        <title>OpenScayl</title>
+        <title>Upscayl Studio</title>
       </Head>
       <base href="./" />
 
