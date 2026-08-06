@@ -69,6 +69,7 @@
     "enable-store": "sed -i '' -e 's/APP_STORE_BUILD: false,/APP_STORE_BUILD: true,/' common/feature-flags.ts",
     "disable-store": "sed -i '' -e 's/APP_STORE_BUILD: true,/APP_STORE_BUILD: false,/' common/feature-flags.ts",
     "validate-schema": "node scripts/validate-schema.js",
+    "generate-appx-assets": "node scripts/generate-appx-assets.js",
     "lint": "next lint renderer",
     "lint:fix": "next lint renderer --fix",
     "format": "prettier --write .",
@@ -193,7 +194,8 @@
       "publisherName": "OpenScale",
       "target": [
         "nsis",
-        "zip"
+        "zip",
+        "appx"
       ],
       "icon": "build/icon.png"
     },

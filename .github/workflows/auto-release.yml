@@ -1,0 +1,31 @@
+name: Auto Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    if: "!contains(github.event.head_commit.message, 'chore(release)')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Bumps package.json/package-lock.json, commits, and tags "vX.Y.Z".
+      # The tag push below triggers .github/workflows/main.yml, which builds
+      # and publishes the installers (nsis/zip/appx/dmg/deb/rpm) to a GitHub
+      # Release named after that tag.
+      - name: Bump version and tag
+        run: "npm version patch -m 'chore(release): v%s'"
+
+      - name: Push version bump and tag
+        run: git push --follow-tags
