@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   bump:
@@ -21,11 +22,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # Bumps package.json/package-lock.json, commits, and tags "vX.Y.Z".
-      # The tag push below triggers .github/workflows/main.yml, which builds
-      # and publishes the installers (nsis/zip/appx/dmg/deb/rpm) to a GitHub
-      # Release named after that tag.
       - name: Bump version and tag
         run: "npm version patch -m 'chore(release): v%s'"
 
       - name: Push version bump and tag
         run: git push --follow-tags
+
+      # A push made with the default GITHUB_TOKEN does not trigger other
+      # workflows (GitHub's anti-recursion rule), so the "vX.Y.Z" tag just
+      # pushed would never fire main.yml's `push: tags` trigger on its own.
+      # workflow_dispatch is exempt from that rule, so trigger it directly.
+      - name: Trigger release build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run main.yml --ref main
