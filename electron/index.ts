@@ -141,6 +141,6 @@ ipcMain.handle("get-app-version", () => {
   }`;
 });
 
-if (!FEATURE_FLAGS.APP_STORE_BUILD) {
+if (!process.windowsStore && !FEATURE_FLAGS.APP_STORE_BUILD) {
   autoUpdater.on("update-downloaded", autoUpdate);
 }

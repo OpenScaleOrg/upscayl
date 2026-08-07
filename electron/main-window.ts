@@ -6,6 +6,7 @@ import { fetchLocalStorage } from "./utils/config-variables";
 import electronIsDev from "electron-is-dev";
 import { format } from "url";
 import { autoUpdater } from "electron-updater";
+import { FEATURE_FLAGS } from "../common/feature-flags";
 
 let mainWindow: BrowserWindow | undefined;
 
@@ -69,7 +70,14 @@ const createMainWindow = () => {
 
   fetchLocalStorage();
 
-  if (!electronIsDev) {
+  // Store builds (Microsoft Store/AppX, Mac App Store) are updated by the
+  // store itself - electron-updater's signature checks fail against the
+  // store's re-signed package, so calling it there throws and kills the app.
+  if (
+    !electronIsDev &&
+    !process.windowsStore &&
+    !FEATURE_FLAGS.APP_STORE_BUILD
+  ) {
     console.log("🚀 Checking for updates");
     mainWindow.webContents
       .executeJavaScript('localStorage.getItem("autoUpdate");', true)
