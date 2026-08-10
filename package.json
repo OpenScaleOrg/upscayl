@@ -212,6 +212,7 @@
       "applicationId": "UpscaylStudio",
       "displayName": "Upscayl Studio",
       "backgroundColor": "#1e1e2e",
+      "minVersion": "10.0.17763.0",
       "languages": [
         "en-US"
       ]
