@@ -26,6 +26,16 @@ import path from "path";
 
 // INITIALIZATION
 log.initialize({ preload: true });
+log.info("🟢 Main process starting, packaged:", app.isPackaged);
+
+// Without these, a throw during startup kills the app silently - no window, no
+// log, nothing to debug from a user's machine.
+process.on("uncaughtException", (error) => {
+  log.error("💥 Uncaught exception:", error);
+});
+process.on("unhandledRejection", (reason) => {
+  log.error("💥 Unhandled rejection:", reason);
+});
 
 app.on("ready", async () => {
   // Friendly name for Windows toast notifications (otherwise they show the raw

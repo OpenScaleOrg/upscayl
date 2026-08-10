@@ -44,6 +44,17 @@ const createMainWindow = () => {
 
   mainWindow.loadURL(url);
 
+  // A renderer that fails to load leaves a blank white window with no other
+  // symptom, so make the reason visible in the logs.
+  mainWindow.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription, validatedURL) => {
+      console.error(
+        `🚨 Renderer failed to load: ${errorDescription} (${errorCode}) - ${validatedURL}`,
+      );
+    },
+  );
+
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: "deny" };
