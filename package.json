@@ -224,7 +224,8 @@
     "publish": {
       "provider": "github",
       "owner": "OpenScaleOrg",
-      "repo": "upscayl"
+      "repo": "upscayl",
+      "releaseType": "release"
     }
   },
   "devDependencies": {
