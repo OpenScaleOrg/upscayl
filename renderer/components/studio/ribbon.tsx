@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { MODELS } from "@common/models-list";
 import useTranslation from "@/components/hooks/use-translation";
 import { customModelIdsAtom } from "@/atoms/models-list-atom";
@@ -17,7 +17,7 @@ import {
   selectedModelIdAtom,
   ttaModeAtom,
 } from "@/atoms/user-settings-atom";
-import { compareModeAtom, zoomAtom } from "@/atoms/studio-atoms";
+import { selectCompareModeAtom, zoomAtom } from "@/atoms/studio-atoms";
 import { useStudio } from "./studio-context";
 import { C } from "./theme";
 
@@ -99,7 +99,7 @@ const Ribbon = () => {
   const [double, setDouble] = useAtom(doubleUpscaylAtom);
   const [tta, setTta] = useAtom(ttaModeAtom);
   const [, setZoom] = useAtom(zoomAtom);
-  const [, setCompare] = useAtom(compareModeAtom);
+  const setCompare = useSetAtom(selectCompareModeAtom);
   const customModels = useAtomValue(customModelIdsAtom);
   const progress = useAtomValue(progressAtom);
 

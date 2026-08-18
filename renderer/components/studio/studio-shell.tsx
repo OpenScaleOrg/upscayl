@@ -14,7 +14,11 @@ import useUpscaylVersion from "@/components/hooks/use-upscayl-version";
 import useSystemInfo from "@/components/hooks/use-system-info";
 import { useInitCustomModels } from "@/components/hooks/use-custom-models";
 import { ImageFormat, VALID_IMAGE_FORMATS } from "@/lib/valid-formats";
-import { applyTransform, TransformOp } from "@/lib/image-transform";
+import {
+  applyTransform,
+  saveSplitTiles,
+  TransformOp,
+} from "@/lib/image-transform";
 import { extractProgressPercent } from "@/lib/progress";
 import { customModelIdsAtom } from "@/atoms/models-list-atom";
 import {
@@ -46,6 +50,7 @@ import {
   selectedQueueIdAtom,
   showBatchQueueAtom,
   showInspectorAtom,
+  showOptionsBarAtom,
   showToolRailAtom,
   transformBusyAtom,
 } from "@/atoms/studio-atoms";
@@ -59,6 +64,7 @@ import {
 import TitleBar from "./title-bar";
 import Ribbon from "./ribbon";
 import ToolRail from "./tool-rail";
+import ToolOptions from "./tool-options";
 import CanvasStage from "./canvas-stage";
 import BatchQueue from "./batch-queue";
 import Inspector from "./inspector";
@@ -262,6 +268,7 @@ const StudioShell = () => {
   const copyMetadata = useAtomValue(copyMetadataAtom);
 
   const showToolRail = useAtomValue(showToolRailAtom);
+  const showOptionsBar = useAtomValue(showOptionsBarAtom);
   const showBatch = useAtomValue(showBatchQueueAtom);
   const showInspector = useAtomValue(showInspectorAtom);
 
@@ -548,6 +555,47 @@ const StudioShell = () => {
     if (!hasAdjustments(adjustments)) return;
     transform({ kind: "adjust", adj: adjustments });
   }, [adjustments, transform]);
+
+  // Split the current image (the upscayled result when there is one) into a
+  // cols × rows grid of PNGs, in their own folder next to the output.
+  const splitImage = useCallback(
+    async (cols: number, rows: number) => {
+      const src = upscaledImagePath || imagePath;
+      if (!src) {
+        toast({
+          title: t("ERRORS.NO_IMAGE_ERROR.TITLE"),
+          description: t("ERRORS.NO_IMAGE_ERROR.DESCRIPTION"),
+        });
+        return;
+      }
+      const dir = outputPath || getDirectoryFromPath(src);
+      const sep = dir.includes("\\") ? "\\" : "/";
+      const base = getFilenameFromPath(src).replace(/\.[^.]+$/, "") || "image";
+      const dest = `${dir}${sep}${base}_split_${cols}x${rows}`;
+      setTransformBusy(true);
+      try {
+        const saved = await saveSplitTiles(src, cols, rows, dest);
+        pushHistory(`Split ${cols}×${rows} → ${saved.length} tiles`);
+        toast({
+          title: `Saved ${saved.length} tiles`,
+          description: dest,
+        });
+      } catch (e: any) {
+        toast({ title: "Split failed", description: e?.message });
+      } finally {
+        setTransformBusy(false);
+      }
+    },
+    [
+      imagePath,
+      upscaledImagePath,
+      outputPath,
+      pushHistory,
+      setTransformBusy,
+      t,
+      toast,
+    ],
+  );
 
   // ---------------- upscale ----------------
   const buildBaseline = (path: string): ImageUpscaylPayload => {
@@ -1070,6 +1118,7 @@ const StudioShell = () => {
     transform,
     applyCrop,
     applyAdjustments: applyImageAdjustments,
+    splitImage,
     addCurrentToQueue,
     startQueue,
     clearDone,
@@ -1091,6 +1140,7 @@ const StudioShell = () => {
       >
         <TitleBar setDimensions={setDimensions} />
         <Ribbon />
+        {showOptionsBar && <ToolOptions />}
         <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
           {showToolRail && <ToolRail />}
           <div

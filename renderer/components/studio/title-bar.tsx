@@ -6,10 +6,11 @@ import getFilenameFromPath from "@common/get-file-name";
 import { useStudio } from "./studio-context";
 import { C } from "./theme";
 import {
-  compareModeAtom,
+  selectCompareModeAtom,
   inspectorTabAtom,
   showBatchQueueAtom,
   showInspectorAtom,
+  showOptionsBarAtom,
   showPreferencesAtom,
   showToolRailAtom,
   zoomAtom,
@@ -33,10 +34,11 @@ const TitleBar = ({
 
   const setPrefs = useSetAtom(showPreferencesAtom);
   const setZoom = useSetAtom(zoomAtom);
-  const setCompare = useSetAtom(compareModeAtom);
+  const setCompare = useSetAtom(selectCompareModeAtom);
   const [showInspector, setShowInspector] = useAtom(showInspectorAtom);
   const [showBatch, setShowBatch] = useAtom(showBatchQueueAtom);
   const [showRail, setShowRail] = useAtom(showToolRailAtom);
+  const [showOptions, setShowOptions] = useAtom(showOptionsBarAtom);
   const setInspectorTab = useSetAtom(inspectorTabAtom);
   const [double, setDouble] = useAtom(doubleUpscaylAtom);
 
@@ -173,6 +175,10 @@ const TitleBar = ({
           onClick: () => setShowRail((v) => !v),
         },
         {
+          label: showOptions ? "Hide Tool Options" : "Show Tool Options",
+          onClick: () => setShowOptions((v) => !v),
+        },
+        {
           label: "History",
           onClick: () => {
             setShowInspector(true);
@@ -185,6 +191,7 @@ const TitleBar = ({
             setShowInspector(true);
             setShowBatch(true);
             setShowRail(true);
+            setShowOptions(true);
           },
         },
       ],

@@ -3,6 +3,9 @@ import {
   moveCropRect,
   resizeCropRect,
   cropRectToPixels,
+  constrainCropRatio,
+  pixelRatioToFraction,
+  setCropSizePx,
   type CropRect,
 } from "@/lib/crop";
 
@@ -66,6 +69,63 @@ describe("resizeCropRect", () => {
     const r = resizeCropRect(base, "se", 2, 2);
     expect(r.x + r.w).toBeLessThanOrEqual(1.0001);
     expect(r.y + r.h).toBeLessThanOrEqual(1.0001);
+  });
+});
+
+describe("aspect ratio lock", () => {
+  // 1:1 on a 2:1 image is half as wide as it is tall, in fraction space.
+  const square = pixelRatioToFraction(1, 2000, 1000);
+
+  it("converts a pixel ratio into fraction space", () => {
+    expect(square).toBeCloseTo(0.5);
+  });
+
+  it("keeps the width and derives the height", () => {
+    const r = constrainCropRatio({ x: 0.1, y: 0.1, w: 0.4, h: 0.9 }, square);
+    expect(r.w / r.h).toBeCloseTo(square);
+    expect(r.w).toBeCloseTo(0.4);
+  });
+
+  it("shrinks and shifts a constrained rect to stay inside the image", () => {
+    const r = constrainCropRatio({ x: 0.8, y: 0.8, w: 0.9, h: 0.2 }, 2);
+    expect(r.w / r.h).toBeCloseTo(2);
+    expect(r.x + r.w).toBeLessThanOrEqual(1.0001);
+    expect(r.y + r.h).toBeLessThanOrEqual(1.0001);
+  });
+
+  it("holds the ratio while dragging a handle", () => {
+    const r = resizeCropRect(base, "se", 0.2, 0, 0.02, 2);
+    expect(r.w / r.h).toBeCloseTo(2);
+    expect(r.w).toBeCloseTo(0.6);
+  });
+
+  it("pins the opposite edge when dragging a north-west handle", () => {
+    const r = resizeCropRect(base, "nw", -0.2, 0, 0.02, 1);
+    expect(r.w / r.h).toBeCloseTo(1);
+    expect(r.x + r.w).toBeCloseTo(base.x + base.w); // right edge stays put
+  });
+});
+
+describe("setCropSizePx", () => {
+  it("sets an exact pixel size", () => {
+    const r = setCropSizePx(base, 1000, 500, 300, 100);
+    expect(r.w * 1000).toBeCloseTo(300);
+    expect(r.h * 500).toBeCloseTo(100);
+    expect(r.x).toBe(base.x);
+  });
+
+  it("clamps oversized values and pulls the rect back inside", () => {
+    const r = setCropSizePx(
+      { x: 0.5, y: 0.5, w: 0.1, h: 0.1 },
+      100,
+      100,
+      999,
+      999,
+    );
+    expect(r.w).toBe(1);
+    expect(r.h).toBe(1);
+    expect(r.x).toBe(0);
+    expect(r.y).toBe(0);
   });
 });
 

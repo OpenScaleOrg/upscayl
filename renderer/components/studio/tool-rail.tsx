@@ -37,6 +37,16 @@ const TOOLS: { id: StudioTool; title: string; icon: any }[] = [
     icon: S(<path d="M5 1.5v11.5h11.5M1.5 5H13v11.5" />),
   },
   {
+    id: "split",
+    title: "Split — cut the image into a grid of tiles",
+    icon: S(
+      <>
+        <rect x="2.5" y="2.5" width="13" height="13" />
+        <path d="M9 2.5v13M2.5 9h13" />
+      </>,
+    ),
+  },
+  {
     id: "zoom",
     title: "Zoom (Z) — click canvas to zoom in",
     icon: S(

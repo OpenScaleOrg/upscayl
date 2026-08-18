@@ -50,6 +50,7 @@ export type StudioContextValue = {
   transform: (op: TransformOp) => void;
   applyCrop: () => void;
   applyAdjustments: () => void;
+  splitImage: (cols: number, rows: number) => void;
 
   // queue
   addCurrentToQueue: () => void;

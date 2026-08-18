@@ -1,7 +1,9 @@
 import { sanitizePath } from "@common/sanitize-path";
 import { ELECTRON_COMMANDS } from "@common/electron-commands";
+import getFilenameFromPath from "@common/get-file-name";
 import { cropRectToPixels, type CropRect } from "@/lib/crop";
 import { applyAdjustments, type Adjustments } from "@/lib/adjustments";
+import { splitGrid, tileFileName } from "@/lib/split";
 
 export type TransformOp =
   | { kind: "crop"; rect: CropRect }
@@ -53,6 +55,51 @@ function render(img: HTMLImageElement, op: TransformOp): HTMLCanvasElement {
   return canvas;
 }
 
+const canvasToBase64 = (canvas: HTMLCanvasElement) =>
+  canvas.toDataURL("image/png").split(",")[1];
+
+/**
+ * Cut `srcPath` into a `cols × rows` grid and write every tile as a PNG into
+ * `destFolder` (created if missing). Returns the saved paths, in reading order.
+ */
+export async function saveSplitTiles(
+  srcPath: string,
+  cols: number,
+  rows: number,
+  destFolder: string,
+): Promise<string[]> {
+  const img = await loadImage(srcPath);
+  const tiles = splitGrid(img.naturalWidth, img.naturalHeight, cols, rows);
+  const fileName = getFilenameFromPath(srcPath);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d")!;
+  const saved: string[] = [];
+  for (const tile of tiles) {
+    canvas.width = tile.sw;
+    canvas.height = tile.sh;
+    ctx.clearRect(0, 0, tile.sw, tile.sh);
+    ctx.drawImage(
+      img,
+      tile.sx,
+      tile.sy,
+      tile.sw,
+      tile.sh,
+      0,
+      0,
+      tile.sw,
+      tile.sh,
+    );
+    saved.push(
+      await window.electron.invoke(ELECTRON_COMMANDS.SAVE_IMAGE_FILE, {
+        folder: destFolder,
+        name: tileFileName(fileName, tile),
+        encodedBuffer: canvasToBase64(canvas),
+      }),
+    );
+  }
+  return saved;
+}
+
 /**
  * Apply a single client-side transform to the source image and persist the
  * result to `destFolder` via the PASTE_IMAGE IPC (which writes the buffer and
@@ -66,8 +113,7 @@ export async function applyTransform(
 ): Promise<void> {
   const img = await loadImage(srcPath);
   const canvas = render(img, op);
-  const dataUrl = canvas.toDataURL("image/png");
-  const base64 = dataUrl.split(",")[1];
+  const base64 = canvasToBase64(canvas);
   const now = new Date();
   const stamp = `${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}-${now.getMilliseconds()}`;
   const name = `.temp-${op.kind}-${stamp}.png`;

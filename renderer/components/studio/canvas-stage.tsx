@@ -12,12 +12,23 @@ import { sanitizePath } from "@common/sanitize-path";
 import getFilenameFromPath from "@common/get-file-name";
 import LensViewer from "@/components/main-content/lens-view";
 import { progressAtom, scaleAtom } from "@/atoms/user-settings-atom";
-import { moveCropRect, resizeCropRect, type CropRect } from "@/lib/crop";
+import {
+  constrainCropRatio,
+  moveCropRect,
+  pixelRatioToFraction,
+  resizeCropRect,
+  type CropRect,
+} from "@/lib/crop";
+import { splitGrid } from "@/lib/split";
 import {
   activeToolAtom,
   adjustmentsAtom,
   compareModeAtom,
+  zoomByAtom,
+  cropRatioAtom,
   cropRectAtom,
+  splitColsAtom,
+  splitRowsAtom,
   zoomAtom,
 } from "@/atoms/studio-atoms";
 import { hasAdjustments } from "@/lib/adjustments";
@@ -37,8 +48,12 @@ const CanvasStage = ({
   const s = useStudio();
   const tool = useAtomValue(activeToolAtom);
   const [zoom, setZoom] = useAtom(zoomAtom);
-  const [compare, setCompare] = useAtom(compareModeAtom);
+  const compare = useAtomValue(compareModeAtom);
+  const zoomBy = useSetAtom(zoomByAtom);
   const [cropRect, setCropRect] = useAtom(cropRectAtom);
+  const cropRatio = useAtomValue(cropRatioAtom);
+  const splitCols = useAtomValue(splitColsAtom);
+  const splitRows = useAtomValue(splitRowsAtom);
   const scale = useAtomValue(scaleAtom);
   const progress = useAtomValue(progressAtom);
   const adjustments = useAtomValue(adjustmentsAtom);
@@ -55,6 +70,10 @@ const CanvasStage = ({
   const running = progress.length > 0 && !s.upscaledImagePath;
   const progressPct = /%$/.test(progress) ? progress : "0%";
   const hasUpscaled = !!s.upscaledImagePath && !!s.imagePath;
+  // Compare is a tool, not a mode the canvas falls into once a result exists.
+  // Previously any tool showed the comparison after upscaling, which also
+  // unmounted the single-image view that crop/split measure against.
+  const showCompare = hasUpscaled && tool === "compare";
 
   // Detect a stalled upscale (no progress change for a while) — usually the
   // wrong GPU on a multi-GPU machine — and surface a hint.
@@ -101,12 +120,19 @@ const CanvasStage = ({
     return () => ro.disconnect();
   }, [recompute, src]);
 
+  // The locked crop ratio, expressed in the crop rect's fraction space.
+  const fracRatio =
+    cropRatio && s.dimensions.width && s.dimensions.height
+      ? pixelRatioToFraction(cropRatio, s.dimensions.width, s.dimensions.height)
+      : undefined;
+
   // default crop rect when the crop tool is picked
   useEffect(() => {
     if (tool === "crop" && !cropRect && s.imagePath && !hasUpscaled) {
-      setCropRect({ x: 0.08, y: 0.08, w: 0.84, h: 0.84 });
+      const start = { x: 0.08, y: 0.08, w: 0.84, h: 0.84 };
+      setCropRect(fracRatio ? constrainCropRatio(start, fracRatio) : start);
     }
-  }, [tool, cropRect, s.imagePath, hasUpscaled, setCropRect]);
+  }, [tool, cropRect, s.imagePath, hasUpscaled, fracRatio, setCropRect]);
 
   // Enter applies crop
   useEffect(() => {
@@ -151,7 +177,7 @@ const CanvasStage = ({
       setCropRect(
         d.mode === "move"
           ? moveCropRect(d.rect, dx, dy)
-          : resizeCropRect(d.rect, d.mode, dx, dy),
+          : resizeCropRect(d.rect, d.mode, dx, dy, 0.02, fracRatio),
       );
     };
     const onUp = () => (dragRef.current = null);
@@ -161,10 +187,11 @@ const CanvasStage = ({
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
     };
-  }, [imgRect, setCropRect]);
+  }, [imgRect, fracRatio, setCropRect]);
 
   const showCrop =
     tool === "crop" && cropRect && imgRect && s.imagePath && !hasUpscaled;
+  const showSplit = tool === "split" && imgRect && s.imagePath && !hasUpscaled;
 
   // ---- hand / pan (Photoshop grab tool) ----
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -218,11 +245,17 @@ const CanvasStage = ({
         : "default";
   const contentTransform = `translate(${pan.x}px, ${pan.y}px) scale(${zScale})`;
 
-  const zoomLabel = zoom == null ? "Fit" : `${zoom}%`;
-  const bump = (dir: 1 | -1) =>
-    setZoom((z) =>
-      Math.max(10, Math.min(800, (z == null ? 100 : z) + dir * 25)),
-    );
+  // The split slider itself must always span the full canvas: putting the zoom
+  // transform on its container shrank the clip region and the drag handle with
+  // it, so zooming out trapped the divider inside a small box. Transform the
+  // two images instead — identical transform on both keeps them registered.
+  const compareImg: React.CSSProperties = {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    transform: contentTransform,
+    transformOrigin: "center center",
+  };
 
   const checker: React.CSSProperties = {
     backgroundColor: C.bgDeep,
@@ -375,11 +408,13 @@ const CanvasStage = ({
         >
           {tool === "crop"
             ? "Crop — drag handles, Enter to apply"
-            : hasUpscaled
-              ? "Compare — drag the divider"
-              : s.imagePath
-                ? "Ready"
-                : "Import an image to begin"}
+            : tool === "split"
+              ? `Split — ${splitCols} × ${splitRows} grid, save from the options bar`
+              : showCompare
+                ? "Compare — drag the divider"
+                : s.imagePath
+                  ? "Ready"
+                  : "Import an image to begin"}
         </div>
       </div>
 
@@ -533,32 +568,15 @@ const CanvasStage = ({
         )}
 
         {/* compare views */}
-        {hasUpscaled && compare === "split" && (
+        {showCompare && compare === "split" && (
           <ReactCompareSlider
             className="dc-cmp"
-            style={{
-              position: "absolute",
-              inset: 0,
-              transform: contentTransform,
-              transformOrigin: "center center",
-            }}
-            itemOne={
-              <img
-                src={src}
-                alt="original"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            }
-            itemTwo={
-              <img
-                src={upSrc}
-                alt="upscayled"
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-              />
-            }
+            style={{ position: "absolute", inset: 0 }}
+            itemOne={<img src={src} alt="original" style={compareImg} />}
+            itemTwo={<img src={upSrc} alt="upscayled" style={compareImg} />}
           />
         )}
-        {hasUpscaled && compare === "lens" && (
+        {showCompare && compare === "lens" && (
           <div style={{ position: "absolute", inset: 0 }}>
             <LensViewer
               sanitizedImagePath={sanitizePath(s.imagePath)}
@@ -566,7 +584,7 @@ const CanvasStage = ({
             />
           </div>
         )}
-        {hasUpscaled && compare === "side" && (
+        {showCompare && compare === "side" && (
           <div
             style={{
               position: "absolute",
@@ -627,8 +645,9 @@ const CanvasStage = ({
           </div>
         )}
 
-        {/* source-only view (image loaded, not yet compared) */}
-        {s.imagePath && !hasUpscaled && (
+        {/* single-image view — every tool except compare. Owns imgRef, which
+            the crop and split overlays measure against. */}
+        {s.imagePath && !showCompare && (
           <div
             style={{
               position: "absolute",
@@ -640,17 +659,21 @@ const CanvasStage = ({
           >
             <img
               ref={imgRef}
-              src={src}
+              src={hasUpscaled ? upSrc : src}
               alt=""
               draggable={false}
               onClick={() => {
-                if (tool === "zoom") bump(1);
+                if (tool === "zoom") zoomBy(1);
               }}
               onLoad={(e) => {
-                setDimensions({
-                  width: e.currentTarget.naturalWidth,
-                  height: e.currentTarget.naturalHeight,
-                });
+                // Source dimensions only — output size is scale × original, so
+                // the upscaled result must not overwrite them.
+                if (!hasUpscaled) {
+                  setDimensions({
+                    width: e.currentTarget.naturalWidth,
+                    height: e.currentTarget.naturalHeight,
+                  });
+                }
                 recompute();
               }}
               style={{
@@ -663,6 +686,45 @@ const CanvasStage = ({
 
             {hasAdjustments(adjustments) && (
               <AdjustPreview srcPath={s.imagePath} adj={adjustments} />
+            )}
+
+            {showSplit && imgRect && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: imgRect.left,
+                  top: imgRect.top,
+                  width: imgRect.w,
+                  height: imgRect.h,
+                  outline: `1px solid ${C.accent}`,
+                  pointerEvents: "none",
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${splitCols},1fr)`,
+                  gridTemplateRows: `repeat(${splitRows},1fr)`,
+                }}
+              >
+                {splitGrid(
+                  s.dimensions.width || 1,
+                  s.dimensions.height || 1,
+                  splitCols,
+                  splitRows,
+                ).map((tile) => (
+                  <div
+                    key={`${tile.row}-${tile.col}`}
+                    style={{
+                      border: `1px dashed ${C.accent}99`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      font: `10.5px ${C.mono}`,
+                      color: "#dfe6f5",
+                      textShadow: "0 1px 3px #000",
+                    }}
+                  >
+                    {tile.sw}×{tile.sh}
+                  </div>
+                ))}
+              </div>
             )}
 
             {showCrop && imgRect && cropRect && (
@@ -827,100 +889,6 @@ const CanvasStage = ({
                 and set your dedicated GPU (e.g. <b>1</b>), then run again.
               </span>
             )}
-          </div>
-        )}
-
-        {/* zoom + mode controls */}
-        {s.imagePath && (
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              bottom: 14,
-              transform: "translateX(-50%)",
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              background: "#181b21e6",
-              backdropFilter: "blur(8px)",
-              border: `1px solid ${C.border3}`,
-              borderRadius: 8,
-              padding: 4,
-            }}
-          >
-            <button
-              className="dc-zoom"
-              onClick={() => bump(-1)}
-              style={{
-                width: 30,
-                height: 26,
-                border: 0,
-                borderRadius: 5,
-                background: "transparent",
-                color: C.textDim,
-                fontSize: 15,
-                cursor: "default",
-              }}
-            >
-              −
-            </button>
-            <span
-              style={{
-                minWidth: 52,
-                textAlign: "center",
-                fontFamily: C.mono,
-                fontSize: 11.5,
-                color: C.text,
-              }}
-            >
-              {zoomLabel}
-            </span>
-            <button
-              className="dc-zoom"
-              onClick={() => bump(1)}
-              style={{
-                width: 30,
-                height: 26,
-                border: 0,
-                borderRadius: 5,
-                background: "transparent",
-                color: C.textDim,
-                fontSize: 15,
-                cursor: "default",
-              }}
-            >
-              +
-            </button>
-            <span
-              style={{
-                width: 1,
-                height: 16,
-                background: C.border3,
-                margin: "0 5px",
-              }}
-            />
-            {(["split", "lens", "side"] as const).map((m) => (
-              <button
-                key={m}
-                className="dc-zoom"
-                onClick={() => setCompare(m)}
-                disabled={!hasUpscaled}
-                style={{
-                  height: 26,
-                  padding: "0 10px",
-                  border: 0,
-                  borderRadius: 5,
-                  background: compare === m ? C.accentBtn : "transparent",
-                  color: compare === m ? "#fff" : "#aeb5c0",
-                  fontSize: 11.5,
-                  cursor: "default",
-                  opacity: hasUpscaled ? 1 : 0.5,
-                  textTransform: "capitalize",
-                }}
-              >
-                {m}
-              </button>
-            ))}
           </div>
         )}
       </div>
