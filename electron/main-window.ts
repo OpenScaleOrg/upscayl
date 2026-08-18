@@ -98,10 +98,17 @@ const createMainWindow = () => {
           lastSaved === undefined ||
           lastSaved === "true"
         ) {
-          autoUpdater.checkForUpdates();
-        } else {
-          console.log("🚀 Auto Update is disabled");
+          return autoUpdater.checkForUpdates();
         }
+        console.log("🚀 Auto Update is disabled");
+        return undefined;
+      })
+      // checkForUpdates() rejects on every offline launch, and on any build
+      // without an app-update.yml (electron-builder --dir). Unhandled, that
+      // surfaces as a "💥 Unhandled rejection" in the user's log for what is
+      // a routine non-event.
+      .catch((error) => {
+        console.log("🚀 Update check skipped:", error?.message ?? error);
       });
   }
 

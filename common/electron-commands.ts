@@ -28,6 +28,7 @@ const ELECTRON_COMMANDS = {
   UPSCAYL_ERROR: "Upscaling Error",
   METADATA_ERROR: "Metadata Error",
   PASTE_IMAGE: "Paste Image from clipboard",
+  SAVE_IMAGE_FILE: "Save an image buffer to disk",
   PASTE_IMAGE_SAVE_SUCCESS: "Clipboard Image saved successfully",
   PASTE_IMAGE_SAVE_ERROR: "Clipboard Image save failed",
   WINDOW_MINIMIZE: "Minimize the window",

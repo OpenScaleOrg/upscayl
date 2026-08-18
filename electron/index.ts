@@ -20,6 +20,7 @@ import autoUpdate from "./commands/auto-update";
 import { FEATURE_FLAGS } from "../common/feature-flags";
 import settings from "electron-settings";
 import pasteImage from "./commands/paste-image";
+import saveImageFile from "./commands/save-image-file";
 import detectGpus from "./commands/detect-gpus";
 import listFolderImages from "./commands/list-folder-images";
 import path from "path";
@@ -44,23 +45,25 @@ app.on("ready", async () => {
 
   await prepareNext("./renderer");
 
-  app.whenReady().then(() => {
-    protocol.registerFileProtocol("file", (request, callback) => {
-      const pathname = decodeURI(request.url.replace("file:///", ""));
-      callback(pathname);
-    });
-    protocol.registerFileProtocol("public", (request, callback) => {
-      const filePath = decodeURI(request.url.replace("public:///", ""));
-      const asarPath = path.join(
-        app.getAppPath(),
-        "renderer",
-        process.env.NODE_ENV === "development" ? "public" : "out",
-        filePath,
-      );
-      callback(asarPath);
-    });
-    logit("🚃 App Path: ", app.getAppPath());
+  // Register synchronously, before the window exists. This used to sit inside
+  // an `app.whenReady().then(...)` - already resolved here, so it deferred the
+  // handlers to a microtask that ran *after* createMainWindow() had called
+  // loadURL, racing the renderer's first asset requests.
+  protocol.registerFileProtocol("file", (request, callback) => {
+    const pathname = decodeURI(request.url.replace("file:///", ""));
+    callback(pathname);
   });
+  protocol.registerFileProtocol("public", (request, callback) => {
+    const filePath = decodeURI(request.url.replace("public:///", ""));
+    const asarPath = path.join(
+      app.getAppPath(),
+      "renderer",
+      process.env.NODE_ENV === "development" ? "public" : "out",
+      filePath,
+    );
+    callback(asarPath);
+  });
+  logit("🚃 App Path: ", app.getAppPath());
 
   createMainWindow();
 
@@ -119,6 +122,8 @@ ipcMain.on(ELECTRON_COMMANDS.FOLDER_UPSCAYL, batchUpscayl);
 ipcMain.on(ELECTRON_COMMANDS.DOUBLE_UPSCAYL, doubleUpscayl);
 
 ipcMain.on(ELECTRON_COMMANDS.PASTE_IMAGE, pasteImage);
+
+ipcMain.handle(ELECTRON_COMMANDS.SAVE_IMAGE_FILE, saveImageFile);
 
 ipcMain.handle(ELECTRON_COMMANDS.DETECT_GPUS, detectGpus);
 
