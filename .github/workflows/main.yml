@@ -1,72 +1,90 @@
-# name of your github action
 name: Deploy Release
-# this will help you specify where to run
+
 on:
   push:
     tags:
-      - "v*" # this will run the action when you push a tag that starts with v
+      - "v*"
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# this is where the magic happens, each job happens in parallel btw
 jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
-      - name: Install Modules and Publish build
+      # elfutils -> AppImage, rpm -> the .rpm target.
+      - name: Install packaging tools
         run: |
-          sudo apt-get install elfutils -y
-          sudo apt install rpm
-          npm install -g node-gyp
-          npm install
-          rm -rf node_modules/sharp
-          SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --arch=x64 --platform=linux --libc=glibc --build-from-source sharp
-          GH_TOKEN=${{ secrets.GITHUB_TOKEN }} npm run publish-linux-app
+          sudo apt-get update
+          sudo apt-get install -y elfutils rpm
+
+      # sharp is only a transitive devDependency of next (image optimisation is
+      # off, `images.unoptimized`), never bundled. Rebuilding it from source
+      # here failed on a missing napi.h and killed every Linux release.
+      - name: Install modules and publish build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npm run publish-linux-app
 
   macos:
     runs-on: macos-latest
-    env:
-      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      CSC_LINK: ${{ secrets.CSC_LINK }}
-      APPLEID: ${{ secrets.APPLEID }}
-      APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-      TEAMID: ${{ secrets.TEAMID }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PROVISION_PROFILE: ${{ secrets.PROVISION_PROFILE }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - name: Install Modules and Publish build
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install modules and publish build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Read into throwaway names: an *empty* CSC_LINK is not the same as an
+          # unset one — electron-builder resolves "" against the project dir and
+          # dies with "<project dir> not a file".
+          MAC_CSC_LINK: ${{ secrets.CSC_LINK }}
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          MAC_PROVISION_PROFILE: ${{ secrets.PROVISION_PROFILE }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
+          TEAMID: ${{ secrets.TEAMID }}
         run: |
-          npm install
-          rm -rf node_modules/sharp
-          echo -n "$PROVISION_PROFILE" | base64 --decode > embedded.provisionprofile
-          npm install --platform=darwin --arch=x64 sharp
-          npm rebuild --platform=darwin --arch=arm64 sharp
+          npm ci
+          if [ -n "$MAC_PROVISION_PROFILE" ]; then
+            printf %s "$MAC_PROVISION_PROFILE" | base64 --decode > embedded.provisionprofile
+          fi
+          if [ -n "$MAC_CSC_LINK" ]; then
+            export CSC_LINK="$MAC_CSC_LINK"
+            export CSC_KEY_PASSWORD="$MAC_CSC_KEY_PASSWORD"
+          else
+            echo "::warning::No Developer ID certificate (CSC_LINK) — publishing an ad-hoc signed, unnotarized macOS build. Users must clear quarantine to open it."
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
           npm run publish-mac-universal-app
 
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3.5.0
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: ".nvmrc"
+          cache: "npm"
 
-      - name: Install Modules and Publish build
+      - name: Install modules and publish build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install
+          npm ci
           npm run publish-win-app

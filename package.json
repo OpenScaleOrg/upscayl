@@ -39,7 +39,7 @@
     "clean": "rimraf dist renderer/.next renderer/out",
     "start": "tsc && electron .",
     "dev": "tsc && electron .",
-    "build": "tsc && npm run validate-schema && next build renderer",
+    "build": "tsc && npm run validate-schema && next build renderer && npm run fix-asset-paths",
     "tsc": "tsc",
     "pack-app": "tsc && npm run build && electron-builder --dir",
     "dist": "tsc && npm run build && cross-env DEBUG=* electron-builder",
@@ -50,6 +50,7 @@
     "dist:zip": "tsc && npm run build && cross-env DEBUG=* electron-builder build -l zip",
     "dist:mac-zip": "tsc && npm run build && electron-builder build -m --universal",
     "dist:dmg": "tsc && npm run build && electron-builder build -m dmg",
+    "dist:appx": "tsc && npm run build && electron-builder build -w appx",
     "dist:msi": "tsc && npm run build && cross-env DEBUG=* electron-builder build -w nsis",
     "dist:pkg": "tsc && npm run build && cross-env DEBUG=* electron-builder build -m pkg",
     "dist:mac": "tsc && npm run build && electron-builder --mac --universal",
@@ -69,6 +70,7 @@
     "enable-store": "sed -i '' -e 's/APP_STORE_BUILD: false,/APP_STORE_BUILD: true,/' common/feature-flags.ts",
     "disable-store": "sed -i '' -e 's/APP_STORE_BUILD: true,/APP_STORE_BUILD: false,/' common/feature-flags.ts",
     "validate-schema": "node scripts/validate-schema.js",
+    "fix-asset-paths": "node scripts/fix-export-asset-paths.js",
     "generate-appx-assets": "node scripts/generate-appx-assets.js",
     "lint": "next lint renderer",
     "lint:fix": "next lint renderer --fix",
@@ -79,17 +81,16 @@
     "test:watch": "vitest",
     "pretest:e2e": "npm run build",
     "test:e2e": "playwright test",
+    "test:packaged": "npm run pack-app && playwright test e2e/packaged.spec.ts",
     "prepare": "husky"
   },
   "build": {
     "productName": "Upscayl Studio",
     "appId": "org.openscale.UpscaylStudio",
     "artifactName": "${name}-${version}-${os}.${ext}",
+    "afterPack": "./scripts/after-pack.js",
     "afterSign": "./notarize.js",
     "asar": true,
-    "asarUnpack": [
-      "**/node_modules/sharp/**/*"
-    ],
     "extraFiles": [
       {
         "from": "resources/${os}/bin",
@@ -145,7 +146,6 @@
       "category": "public.app-category.photography",
       "entitlements": "resources/entitlements.mac.plist",
       "entitlementsInherit": "resources/entitlements.mac.plist",
-      "provisioningProfile": "embedded.provisionprofile",
       "type": null,
       "target": [
         {
@@ -163,7 +163,7 @@
       ]
     },
     "dmg": {
-      "sign": "false",
+      "sign": false,
       "contents": [
         {
           "x": 130,
@@ -191,21 +191,19 @@
       "icon": "resources/icons/"
     },
     "win": {
-      "publisherName": "OpenScale",
       "target": [
         "nsis",
-        "zip",
-        "appx"
+        "zip"
       ],
       "icon": "build/icon.png"
     },
     "nsis": {
       "allowToChangeInstallationDirectory": true,
       "oneClick": false,
-      "allowElevation": true,
-      "perMachine": true
+      "allowElevation": true
     },
     "appx": {
+      "artifactName": "${name}-${version}-${os}.msix",
       "identityName": "OpenScale.UpscaylStudio",
       "publisher": "CN=7F993A72-0639-408E-9DB8-365D59E29D5C",
       "publisherDisplayName": "OpenScale",
